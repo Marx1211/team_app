@@ -10,6 +10,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Home page',
       home: NewsPage(),
+      routes: <String,WidgetBuilder>{
+        NewsPage.routeName : (BuildContext context) => new NewsPage()
+      },
     );
 
   }

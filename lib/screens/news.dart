@@ -3,6 +3,7 @@ import 'package:team_app/widgets/menu_drawer.dart';
 
 
 class NewsPage extends StatefulWidget {
+  static final routeName = "/news";
   @override
   NewsPageState createState() => NewsPageState();
 }
@@ -27,6 +28,7 @@ class NewsPageState extends State<NewsPage> {
   );
   Widget get news => Expanded(
     child: Container(
+      child: Text("News"),
       color: Colors.blue[300],
     ),
   );
