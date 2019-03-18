@@ -2,14 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:team_app/widgets/menu_drawer.dart';
 import 'package:flutter/material.dart';
 
-final dummySnapshot = [
-  {"name": "Match1", "date": "12/11/1998"},
-  {"name": "Match2", "date": "13/11/1998"},
-  {"name": "Match3", "date": "14/11/1998"},
-  {"name": "Match4", "date": "15/11/1998"},
-  {"name": "Match5", "date": "16/11/1998"},
-];
-
 class EventsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -41,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance.collection('calendar').snapshots(),
       builder: (context, snapshot) {
-        if(!snapshot.hasData) return LinearProgressIndicator();
+        if (!snapshot.hasData) return LinearProgressIndicator();
 
         return _buildList(context, snapshot.data.documents);
       },
