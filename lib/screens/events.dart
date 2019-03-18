@@ -1,34 +1,98 @@
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:team_app/widgets/menu_drawer.dart';
+import 'package:flutter/material.dart';
 
+final dummySnapshot = [
+  {"name": "Match1", "date": "12/11/1998"},
+  {"name": "Match2", "date": "13/11/1998"},
+  {"name": "Match3", "date": "14/11/1998"},
+  {"name": "Match4", "date": "15/11/1998"},
+  {"name": "Match5", "date": "16/11/1998"},
+];
 
-class EventsPage extends StatefulWidget {
+class EventsPage extends StatelessWidget {
   @override
-  EventsPageState createState() => EventsPageState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Baby Names',
+      home: MyHomePage(),
+    );
+  }
 }
 
-class EventsPageState extends State<EventsPage> {
+class MyHomePage extends StatefulWidget {
   @override
-  Widget build(BuildContext context){
+  _MyHomePageState createState() {
+    return _MyHomePageState();
+  }
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: <Widget>[
-          top,
-          events,
-        ],
-      ),
+      appBar: AppBar(title: Text('Events')),
+      body: _buildBody(context),
       drawer: MenuDrawer(),
     );
   }
-  Widget get top => Container(
-    height: 100.0,
-    padding: EdgeInsets.only(bottom: 15.0),
-    color: Colors.yellow[300],
-  );
-  Widget get events => Expanded(
-    child: Container(
-      child: Text("Events"),
-      color: Colors.blue[300],
-    ),
-  );
+
+  Widget _buildBody(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance.collection('calendar').snapshots(),
+      builder: (context, snapshot) {
+        if(!snapshot.hasData) return LinearProgressIndicator();
+
+        return _buildList(context, snapshot.data.documents);
+      },
+    );
+  }
+
+  Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
+    return ListView(
+      padding: const EdgeInsets.only(top: 20.0),
+      children: snapshot.map((data) => _buildListItem(context, data)).toList(),
+    );
+  }
+
+  Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
+    final event = Events.fromSnapshot(data);
+
+    return Padding(
+      key: ValueKey(event.name),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(5.0),
+        ),
+        child: ListTile(
+          leading: CircleAvatar(
+            backgroundImage: AssetImage("assets/images/friends.jpg"),
+          ),
+          title: Text(event.name),
+          trailing: Text(event.date.toString()),
+          onTap: () => print(event),
+        ),
+      ),
+    );
+  }
+}
+
+class Events {
+  final String name;
+  final String date;
+  final DocumentReference reference;
+
+  Events.fromMap(Map<String, dynamic> map, {this.reference})
+      : assert(map['name'] != null),
+        assert(map['date'] != null),
+        name = map['name'],
+        date = map['date'];
+
+  Events.fromSnapshot(DocumentSnapshot snapshot)
+      : this.fromMap(snapshot.data, reference: snapshot.reference);
+
+  @override
+  String toString() => "Record<$name:$date>";
 }
