@@ -3,7 +3,6 @@ import 'package:team_app/screens/news.dart';
 import 'package:team_app/screens/events.dart';
 import 'package:team_app/screens/gallery.dart';
 import 'package:team_app/screens/sponsors.dart';
-import 'package:team_app/screens/login.dart';
 
 enum Pages { news, events, gallery, sponsors, login }
 
@@ -52,12 +51,6 @@ class _MenuDrawerState extends State<MenuDrawer> {
             selected: _current == Pages.sponsors,
             onTap: () => _onPageTap(context, Pages.sponsors),
           ),
-          new ListTile(
-            trailing: new Icon(Icons.arrow_forward_ios),
-            title: new Text("TeamArea"),
-            selected: _current == Pages.login,
-            onTap: () => _onPageTap(context, Pages.login),
-          ),
         ],
       ),
     );
@@ -79,8 +72,6 @@ class _MenuDrawerState extends State<MenuDrawer> {
           return new GalleryPage();
         case Pages.sponsors:
           return new SponsorsPage();
-        case Pages.login:
-          return new LoginPage();
         default:
           return new NewsPage();
       }

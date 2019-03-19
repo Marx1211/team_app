@@ -2,24 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:team_app/widgets/menu_drawer.dart';
 import 'package:flutter/material.dart';
 
-class EventsPage extends StatelessWidget {
+class EventsPage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Baby Names',
-      home: MyHomePage(),
-    );
+  _EventsPageState createState() {
+    return _EventsPageState();
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() {
-    return _MyHomePageState();
-  }
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class _EventsPageState extends State<EventsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,6 +39,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
     final event = Events.fromSnapshot(data);
+    final emailController = TextEditingController();
+    final nameController = TextEditingController();
+    final Map<String, dynamic> bookings = new Map();
 
     return Padding(
       key: ValueKey(event.name),
@@ -60,11 +53,78 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         child: ListTile(
           leading: CircleAvatar(
-            backgroundImage: AssetImage("assets/images/friends.jpg"),
+            backgroundImage: NetworkImage(event.image),
+            child: Text(event.day.toString()),
           ),
           title: Text(event.name),
-          trailing: Text(event.date.toString()),
-          onTap: () => print(event),
+          trailing: GestureDetector(
+            child: Icon(Icons.plus_one),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) {
+                return Scaffold(
+                  appBar: AppBar(title: Text(event.name)),
+                  body: Column(
+                    children: <Widget>[
+                      Container(
+                          child: Image.network(
+                        event.image,
+                        fit: BoxFit.contain,
+                      )),
+                      Container(
+                        child: Text(
+                          "Register for this event:",
+                          style: TextStyle(fontSize: 26),
+                        ),
+                      ),
+                      Container(
+                        child: TextField(
+                          controller: emailController,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.lightBlue.withOpacity(0.3),
+                            hintText: "Email",
+                          ),
+                        ),
+                      ),
+                      Container(
+                        child: TextField(
+                          controller: nameController,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.lightBlue.withOpacity(0.3),
+                            hintText: "Full Name",
+                          ),
+                        ),
+                      ),
+                      Container(
+                        child: IconButton(
+                            icon: Icon(Icons.add),
+                            onPressed: () {
+                              bookings.putIfAbsent("email",
+                                  () => emailController.text.toString());
+                              bookings.putIfAbsent(
+                                  "name", () => nameController.text.toString());
+                              Firestore.instance
+                                  .collection('calendar')
+                                  .document('match1')
+                                  .collection('people')
+                                  .add(bookings);
+                              emailController.clear();
+                              nameController.clear();
+                              final scaffold = Scaffold.of(context);
+                              scaffold.showSnackBar(SnackBar(
+                                content:
+                                    Text("You have registered for the event"),
+                              ));
+                              Navigator.pop(context);
+                            }),
+                      )
+                    ],
+                  ),
+                );
+              }));
+            },
+          ),
         ),
       ),
     );
@@ -73,18 +133,24 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class Events {
   final String name;
-  final String date;
+  final int day;
+  final String image;
+  final String month;
+  int assisting;
   final DocumentReference reference;
 
   Events.fromMap(Map<String, dynamic> map, {this.reference})
       : assert(map['name'] != null),
-        assert(map['date'] != null),
+        assert(map['day'] != null),
+        assert(map['month'] != null),
+        assert(map['assisting'] != null),
+        assert(map['imgUrl'] != null),
         name = map['name'],
-        date = map['date'];
+        day = map['day'],
+        month = map['month'],
+        image = map['imgUrl'],
+        assisting = map['assisting'];
 
   Events.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data, reference: snapshot.reference);
-
-  @override
-  String toString() => "Record<$name:$date>";
 }

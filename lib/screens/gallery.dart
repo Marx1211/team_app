@@ -2,43 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:team_app/widgets/menu_drawer.dart';
 import 'package:flutter/material.dart';
 
-final imgUrls = [
-  {
-    "name": "image1",
-    "url": "http://img-cdn.jg.jugem.jp/fb2/2094631/20120104_2709455.jpg"
-  },
-  {
-    "name": "image2",
-    "url": "http://img-cdn.jg.jugem.jp/fb2/2094631/20120104_2709455.jpg"
-  },
-  {
-    "name": "image3",
-    "url": "http://img-cdn.jg.jugem.jp/fb2/2094631/20120104_2709455.jpg"
-  },
-  {
-    "name": "image4",
-    "url": "http://img-cdn.jg.jugem.jp/fb2/2094631/20120104_2709455.jpg"
-  },
-];
 
-class GalleryPage extends StatelessWidget {
+class GalleryPage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Gallery',
-      home: MyHomePage(),
-    );
+  _GalleryPageState createState() {
+    return _GalleryPageState();
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() {
-    return _MyHomePageState();
-  }
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class _GalleryPageState extends State<GalleryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,10 +21,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildBody(BuildContext context) {
-    return _buildList(context, imgUrls);
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance.collection('images').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return LinearProgressIndicator();
+
+        return _buildList(context, snapshot.data.documents);
+      },
+    );
   }
 
-  Widget _buildList(BuildContext context, List<Map> snapshot) {
+  Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
     return GridView.count(
       crossAxisCount: 2,
       padding: const EdgeInsets.only(top: 20.0),
@@ -60,8 +39,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildListItem(BuildContext context, Map data) {
-    final img = ImageURL.fromMap(data);
+  Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
+    final img = ImageURL.fromSnapshot(data);
 
     return Padding(
       key: ValueKey(img.name),
