@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:team_app/widgets/menu_drawer.dart';
 import 'package:flutter/material.dart';
 
-
 class GalleryPage extends StatefulWidget {
   @override
   _GalleryPageState createState() {
@@ -71,12 +70,13 @@ class _GalleryPageState extends State<GalleryPage> {
                 child: Text(
                   img.name,
                   textAlign: TextAlign.end,
+                  style: TextStyle(color: Colors.white),
                 ),
                 decoration: new BoxDecoration(
                   color: Colors.blue,
                   gradient: new LinearGradient(
                     colors: [
-                      Colors.blue.withOpacity(1),
+                      Colors.blue.withOpacity(0.7),
                       Colors.blueGrey.withOpacity(0.1)
                     ],
                     begin: Alignment.topRight,
