@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:team_app/widgets/menu_drawer.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 
 class GalleryPage extends StatefulWidget {
   @override
@@ -58,9 +59,12 @@ class _GalleryPageState extends State<GalleryPage> {
                     body: Column(
                       children: <Widget>[
                         Expanded(
-                            child: Image.network(
-                          img.url,
-                          fit: BoxFit.contain,
+                            child: new PhotoView(
+                          imageProvider: NetworkImage(
+                            img.url,
+                          ),
+                          maxScale: PhotoViewComputedScale.contained * 4.0,
+                          minScale: PhotoViewComputedScale.contained * 0.50,
                         ))
                       ],
                     ),
